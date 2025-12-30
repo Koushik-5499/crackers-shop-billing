@@ -1432,4 +1432,16 @@ function exportBillHistory() {
     window.URL.revokeObjectURL(url);
     
     alert('📤 Billing history exported successfully!');
+
+}
+function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if (username === "galaxycrackers" && password === "senthilkumar") {
+    localStorage.setItem("isLoggedIn", "true");
+    window.location.href = "billing.html";
+  } else {
+    alert("Invalid Username or Password");
+  }
 }
