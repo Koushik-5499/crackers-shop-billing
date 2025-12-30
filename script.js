@@ -1445,3 +1445,45 @@ function login() {
     alert("Invalid Username or Password");
   }
 }
+// script.js - login handling for index.html
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('loginForm');
+  const userInput = document.getElementById('user');
+  const passInput = document.getElementById('pass');
+  const errorDiv = document.getElementById('error');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // keep control in JS while validating
+    errorDiv.textContent = '';
+
+    const username = userInput.value.trim();
+    const password = passInput.value;
+
+    console.log('Login attempt:', { username });
+
+    if (!username || !password) {
+      errorDiv.textContent = 'Please enter both username and password.';
+      return;
+    }
+
+    // Demo credential check:
+    // Replace this with your server-side/auth logic or custom validation as needed.
+    if (username === 'admin' && password === '1234') {
+      // mark logged in and redirect to billing.html
+      sessionStorage.setItem('loggedIn', 'true');
+      sessionStorage.setItem('username', username);
+      console.log('Login success — redirecting to billing.html');
+      // Use assign/href to create a normal navigation (works on file:// and http)
+      window.location.href = 'billing.html';
+      return;
+    }
+
+    // If you want to accept any non-empty credentials, comment the block above and uncomment:
+    // sessionStorage.setItem('loggedIn', 'true');
+    // sessionStorage.setItem('username', username);
+    // window.location.href = 'billing.html';
+
+    errorDiv.textContent = 'Invalid username or password.';
+    console.warn('Login failed for user:', username);
+  });
+});
