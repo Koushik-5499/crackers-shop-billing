@@ -264,7 +264,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">
+            <!-- Changed to type="button" and added onclick="login()" so the form is not submitted -->
+            <button type="button" class="login-btn" id="loginBtn" onclick="login()">
                 🔐 Login
             </button>
         </form>
@@ -327,11 +328,16 @@
             }
         });
 
-        // FORM SUBMISSION
+        // FORM SUBMISSION (kept as a fallback; button no longer submits)
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             handleLogin();
         });
+
+        // Expose a global login() function that the button calls
+        function login() {
+            handleLogin();
+        }
 
         // MAIN LOGIN HANDLER
         function handleLogin() {
@@ -366,9 +372,9 @@
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('loginTime', new Date().toISOString());
                 
-                // REDIRECT TO MAIN APPLICATION
+                // REDIRECT TO MAIN APPLICATION (changed to billing.html)
                 setTimeout(() => {
-                    window.location.href = 'index.html'; // Redirect to main app
+                    window.location.href = 'billing.html'; // Redirect to billing page
                 }, 2000);
                 
             } else {
@@ -460,4 +466,3 @@
 </body>
     <script src="script.js"></script>
 </html>
-
