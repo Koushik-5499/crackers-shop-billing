@@ -1,34 +1,468 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login - Crackers Shop Billing</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 420px; margin: auto; }
-    label { display:block; margin-top:0.75rem; }
-    input { width:100%; padding:0.5rem; margin-top:0.25rem; box-sizing:border-box; }
-    button { margin-top:1rem; padding:0.6rem 1rem; }
-    .error { color:#a00; margin-top:0.5rem; }
-    .hint { color:#666; font-size:0.9rem; margin-top:0.5rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Crackers Billing Software</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Login</h1>
+    <!-- TOP NAVIGATION (TAB STYLE) -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎆 Crackers Billing Pro</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('product-entry')">
+                    📦 Product Entry
+                </button>
+                <button class="nav-tab" onclick="switchTab('billing')">
+                    🧾 Billing
+                </button>
+                <button class="nav-tab" onclick="switchTab('billing-history')">
+                    📋 Billing History
+                </button>
+            </div>
+            <div class="user-info">
+                <span id="welcomeUser">👤 Welcome, Owner</span>
+                <button class="btn btn-import" onclick="goToBilling()">🧾 Go to Billing</button>
+                <button class="btn btn-danger logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </nav>
 
-  <form id="loginForm" novalidate>
-    <label for="user">Username</label>
-    <input id="user" name="username" required autocomplete="username" placeholder="admin" />
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- SECTION 1 – PRODUCT ENTRY (DEFAULT VIEW) -->
+        <section id="product-entry" class="section active">
+            <h2 class="section-title">Product Entry & Management</h2>
+            
+            <!-- MANUAL PRODUCT ENTRY -->
+            <div class="card">
+                <h3>Add New Product</h3>
+                <form id="productForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productName">🎆 Cracker Name</label>
+                            <input type="text" id="productName" placeholder="Enter cracker name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productMRP">💰 MRP Rate (₹)</label>
+                            <input type="number" id="productMRP" placeholder="0.00" min="1" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPieces">📦 Pieces per Box</label>
+                            <input type="number" id="productPieces" placeholder="0" min="1" required>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">
+                            ➕ Add Product
+                        </button>
+                        <button type="button" class="btn" onclick="clearProductForm()">
+                            🔄 Clear Form
+                        </button>
+                        <button type="button" class="btn btn-import" onclick="showImportDialog()">
+                            📄 Import from PDF / Image
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-    <label for="pass">Password</label>
-    <input id="pass" name="password" required type="password" autocomplete="current-password" placeholder="1234" />
+            <!-- IMPORT DIALOG -->
+            <div class="card" id="importDialog" style="display: none;">
+                <h3>Import Products from File</h3>
+                <div class="file-upload-area" onclick="triggerFileInput()" tabindex="0">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to upload or drag and drop files</div>
+                    <div class="supported-formats">Supported: PDF 📄, JPG 🖼️, PNG 🖼️</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; color: #888;">Press Enter or Space to browse files</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(event)">
+                </div>
 
-    <button type="submit">Login</button>
-    <div id="error" class="error" role="alert" aria-live="polite"></div>
+                <!-- LOADING INDICATOR -->
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Processing file... Please wait ⏳</p>
+                </div>
 
-    <div class="hint">Demo credentials: <strong>admin</strong> / <strong>1234</strong></div>
-  </form>
+                <!-- PREVIEW CONTAINER -->
+                <div class="preview-container" id="previewContainer">
+                    <h4>📋 Preview Extracted Products</h4>
+                    <p style="color: #666; margin-bottom: 1rem;">Review and edit the extracted data before importing:</p>
+                    <table class="preview-table" id="previewTable">
+                        <thead>
+                            <tr>
+                                <th>🎆 Cracker Name</th>
+                                <th>💰 MRP Rate (₹)</th>
+                                <th>📦 Pieces per Box</th>
+                                <th>⚡ Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                        </tbody>
+                    </table>
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="confirmImport()">
+                            ✅ Import All Products
+                        </button>
+                        <button class="btn btn-danger" onclick="cancelImport()">
+                            ❌ Cancel
+                        </button>
+                    </div>
+                </div>
 
-  <script src="script.js" defer></script>
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="hideImportDialog()">
+                        🔙 Back to Product Entry
+                    </button>
+                </div>
+            </div>
+
+            <!-- MANAGE PRODUCTS -->
+            <div class="card">
+                <h3>Manage Products</h3>
+                <div class="search-box">
+                    <input type="text" id="productSearch" placeholder="🔍 Search products by name..." onkeyup="searchProducts()">
+                </div>
+                
+                <!-- PRODUCTS TABLE -->
+                <table class="table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>🎆 Cracker Name</th>
+                            <th>💰 Rate (₹)</th>
+                            <th>📦 Pieces per Box</th>
+                            <th>⚡ Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #666; padding: 2rem;">
+                                📦 No products added yet. Add your first product above!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 2 – BILLING -->
+        <section id="billing" class="section">
+            <h2 class="section-title">Billing & Invoice</h2>
+            
+            <!-- PRODUCT SELECTION -->
+            <div class="card">
+                <h3>Add Items to Bill</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="billingProductSearch">🔍 Product Name</label>
+                        <div class="autocomplete-container">
+                            <input type="text" id="billingProductSearch" placeholder="Type 2+ letters to search products...">
+                            <div class="autocomplete-suggestions" id="billingSuggestions"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="billingMRP">💰 MRP (₹)</label>
+                        <input type="number" id="billingMRP" class="readonly" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="billingPieces">📦 Pieces per Box</label>
+                        <input type="number" id="billingPieces" class="readonly" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="billingQuantity">📊 Quantity (Boxes)</label>
+                        <input type="number" id="billingQuantity" placeholder="Enter quantity" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="billingTotalPieces">🔢 Total Pieces</label>
+                        <input type="number" id="billingTotalPieces" class="readonly" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="billingItemTotal">💵 Item Total (₹)</label>
+                        <input type="number" id="billingItemTotal" class="readonly" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="addToBill()">
+                        ➕ Add to Bill
+                    </button>
+                </div>
+            </div>
+
+            <!-- BILLING TABLE -->
+            <div class="card">
+                <h3>Current Bill</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>📋 S.No</th>
+                            <th>🎆 Product Name</th>
+                            <th>📊 Quantity</th>
+                            <th>💰 Rate (₹)</th>
+                            <th>🔢 Pieces</th>
+                            <th>💵 Total (₹)</th>
+                            <th>⚡ Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billingTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #666; padding: 2rem;">
+                                🛒 No items added to bill yet. Start adding products above!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SUMMARY PANEL -->
+                <div class="summary-panel">
+                    <div class="summary-row">
+                        <span>📊 Total Quantity:</span>
+                        <span id="totalQuantity">0 boxes</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>🔢 Total Pieces:</span>
+                        <span id="totalPieces">0 pieces</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>💰 Grand Total Amount:</span>
+                        <span id="grandTotal">₹0.00</span>
+                    </div>
+                </div>
+
+                <!-- BILL MANAGEMENT BUTTONS -->
+                <div class="button-group">
+                    <button class="btn" onclick="printBill()">
+                        🖨️ Print Bill
+                    </button>
+                    <button class="btn btn-danger" onclick="clearBill()">
+                        🗑️ Clear Bill
+                    </button>
+                    <button class="btn btn-warning" onclick="saveBill()">
+                        💾 Save Bill
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3 – BILLING HISTORY -->
+        <section id="billing-history" class="section">
+            <h2 class="section-title">Billing History</h2>
+            
+            <!-- SEARCH AND FILTER -->
+            <div class="card">
+                <h3>Search & Filter Bills</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="historySearch">🔍 Search Bills</label>
+                        <input type="text" id="historySearch" placeholder="Search by bill ID, customer, or product..." onkeyup="searchBillHistory()">
+                    </div>
+                    <div class="form-group">
+                        <label for="historyDateFrom">📅 From Date</label>
+                        <input type="date" id="historyDateFrom" onchange="filterBillHistory()">
+                    </div>
+                    <div class="form-group">
+                        <label for="historyDateTo">📅 To Date</label>
+                        <input type="date" id="historyDateTo" onchange="filterBillHistory()">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn" onclick="clearHistoryFilters()">
+                        🔄 Clear Filters
+                    </button>
+                    <button class="btn btn-warning" onclick="exportBillHistory()">
+                        📤 Export History
+                    </button>
+                </div>
+            </div>
+
+            <!-- BILLING HISTORY TABLE -->
+            <div class="card">
+                <h3>Recent Bills</h3>
+                <div class="history-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">📊 Total Bills:</span>
+                        <span class="stat-value" id="totalBillsCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">💰 Total Revenue:</span>
+                        <span class="stat-value" id="totalRevenue">₹0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">📈 Average Bill:</span>
+                        <span class="stat-value" id="averageBill">₹0.00</span>
+                    </div>
+                </div>
+                
+                <table class="table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>📋 Bill ID</th>
+                            <th>📅 Date & Time</th>
+                            <th>🛒 Items</th>
+                            <th>📊 Quantity</th>
+                            <th>🔢 Pieces</th>
+                            <th>💰 Total Amount</th>
+                            <th>⚡ Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #666; padding: 2rem;">
+                                📋 No billing history found. Create your first bill!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BILL DETAILS MODAL -->
+            <div class="modal" id="billDetailsModal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modalBillTitle">📋 Bill Details</h3>
+                        <button class="modal-close" onclick="closeBillDetailsModal()">❌</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="bill-info">
+                            <div class="info-row">
+                                <span class="info-label">📋 Bill ID:</span>
+                                <span class="info-value" id="modalBillId">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">📅 Date & Time:</span>
+                                <span class="info-value" id="modalBillDateTime">-</span>
+                            </div>
+                        </div>
+                        
+                        <h4>🛒 Bill Items</h4>
+                        <table class="table" id="modalBillItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>🎆 Product</th>
+                                    <th>📊 Qty</th>
+                                    <th>💰 Rate</th>
+                                    <th>🔢 Pieces</th>
+                                    <th>💵 Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalBillItemsBody">
+                            </tbody>
+                        </table>
+                        
+                        <div class="modal-summary">
+                            <div class="summary-row">
+                                <span>📊 Total Quantity:</span>
+                                <span id="modalTotalQuantity">0 boxes</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>🔢 Total Pieces:</span>
+                                <span id="modalTotalPieces">0 pieces</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>💰 Grand Total:</span>
+                                <span id="modalGrandTotal">₹0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" onclick="printBillFromHistory()">
+                            🖨️ Print Bill
+                        </button>
+                        <button class="btn btn-warning" onclick="editBillFromHistory()">
+                            ✏️ Edit Bill
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteBillFromHistory()">
+                            🗑️ Delete Bill
+                        </button>
+                        <button class="btn" onclick="closeBillDetailsModal()">
+                            🔙 Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <!-- AUTHENTICATION CHECK -->
+    <script>
+        // CHECK IF USER IS LOGGED IN
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const loginTime = sessionStorage.getItem('loginTime');
+            const username = sessionStorage.getItem('username');
+            
+            // If not logged in, redirect to login page
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if session has expired (30 minutes)
+            if (loginTime) {
+                const loginDate = new Date(loginTime);
+                const now = new Date();
+                const timeDiff = now - loginDate;
+                const thirtyMinutes = 30 * 60 * 1000;
+                
+                if (timeDiff > thirtyMinutes) {
+                    sessionStorage.removeItem('isLoggedIn');
+                    sessionStorage.removeItem('loginTime');
+                    sessionStorage.removeItem('username');
+                    alert('Session expired. Please login again.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            }
+            
+            // Update welcome message
+            if (username) {
+                document.getElementById('welcomeUser').textContent = `👤 Welcome, ${username}`;
+            }
+            
+            // Update last activity time
+            sessionStorage.setItem('lastActivity', new Date().toISOString());
+        });
+        
+        // LOGOUT FUNCTION
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('loginTime');
+                sessionStorage.removeItem('username');
+                sessionStorage.removeItem('lastActivity');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // GO TO BILLING FUNCTION
+        function goToBilling() {
+            window.location.href = 'billing.html';
+        }
+        
+        // AUTO-LOGOUT ON INACTIVITY
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('loginTime');
+                sessionStorage.removeItem('username');
+                alert('Session expired due to inactivity');
+                window.location.href = 'login.html';
+            }, 30 * 60 * 1000); // 30 minutes
+        }
+
+        // TRACK USER ACTIVITY
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        // INITIALIZE INACTIVITY TIMER
+        resetInactivityTimer();
+    </script>
 </body>
 </html>

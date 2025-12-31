@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Login - Galaxy Crackers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .shop-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .shop-name {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .password-input {
+            position: relative;
+        }
+
+        .password-input input {
+            padding-right: 3rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .success-message {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(102, 126, 234, 0.1);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .shop-name {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="shop-logo">🎆</div>
+            <h1 class="login-title">Owner Login</h1>
+            <div class="shop-name">Galaxy Crackers</div>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            ❌ Invalid Username or Password
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✅ Login Successful! Redirecting...
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">👤 Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">🔒 Password</label>
+                <div class="password-input">
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="passwordToggle">👁️</button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                🔐 Login
+            </button>
+        </form>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Authenticating...</p>
+        </div>
+
+        <div class="footer">
+            <p>🏪 Galaxy Crackers Management System</p>
+            <p>Secure Owner Access Portal</p>
+        </div>
+    </div>
+
+    <script>
+        // HARDCODED CREDENTIALS
+        const VALID_CREDENTIALS = {
+            username: 'galaxycrackers',
+            password: 'senthilkumar'
+        };
+
+        // DOM ELEMENTS
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // FOCUS ON USERNAME INPUT BY DEFAULT
+        document.addEventListener('DOMContentLoaded', function() {
+            usernameInput.focus();
+        });
+
+        // PASSWORD VISIBILITY TOGGLE
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            passwordToggle.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // DISABLE COPY-PASTE ON PASSWORD FIELD
+        passwordInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            showError('Paste is disabled for security reasons');
+        });
+
+        passwordInput.addEventListener('copy', function(e) {
+            e.preventDefault();
+        });
+
+        // ENTER KEY SUPPORT
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (document.activeElement === usernameInput || document.activeElement === passwordInput)) {
+                e.preventDefault();
+                handleLogin();
+            }
+        });
+
+        // FORM SUBMISSION
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin();
+        });
+
+        // MAIN LOGIN HANDLER
+        function handleLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // VALIDATION: PREVENT EMPTY SUBMISSION
+            if (!username || !password) {
+                showError('Please enter both username and password');
+                return;
+            }
+
+            // SHOW LOADING STATE
+            showLoading(true);
+            hideMessages();
+
+            // SIMULATE AUTHENTICATION DELAY
+            setTimeout(() => {
+                authenticateUser(username, password);
+            }, 1000);
+        }
+
+        // AUTHENTICATION LOGIC
+        function authenticateUser(username, password) {
+            // CHECK CREDENTIALS
+            if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
+                // SUCCESS
+                showLoading(false);
+                showSuccess('Login Successful! Redirecting to Dashboard...');
+                
+                // STORE LOGIN SESSION
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('loginTime', new Date().toISOString());
+                sessionStorage.setItem('username', username);
+                
+                // REDIRECT TO INDEX.HTML (MAIN DASHBOARD)
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                
+            } else {
+                // FAILURE
+                showLoading(false);
+                showError('Invalid Username or Password');
+                
+                // CLEAR PASSWORD FIELD FOR SECURITY
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                // SHAKE ANIMATION
+                document.querySelector('.login-container').style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    document.querySelector('.login-container').style.animation = '';
+                }, 500);
+            }
+        }
+
+        // UTILITY FUNCTIONS
+        function showError(message) {
+            errorMessage.textContent = `❌ ${message}`;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = `✅ ${message}`;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        function showLoading(show) {
+            if (show) {
+                loadingIndicator.style.display = 'block';
+                loginBtn.disabled = true;
+                loginBtn.textContent = '🔄 Authenticating...';
+            } else {
+                loadingIndicator.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔐 Login';
+            }
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
