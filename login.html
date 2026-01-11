@@ -268,10 +268,12 @@
 
     <script>
         // HARDCODED CREDENTIALS
-        const VALID_CREDENTIALS = {
-            username: 'galaxycrackers', password: 'senthilkumar'
-            username: 'saravanacrackers', password: 'ramasamy'
-        };
+        const VALID_CREDENTIALS = [
+            { username: 'galaxycrackers', password: 'senthilkumar'},
+            { username: 'saravanacrackers', password: 'ramasamy'}
+        ];
+
+
 
         // DOM ELEMENTS
         const loginForm = document.getElementById('loginForm');
@@ -343,7 +345,12 @@
         // AUTHENTICATION LOGIC
         function authenticateUser(username, password) {
             // CHECK CREDENTIALS
-            if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
+            const isValid = VALID_CREDENTIALS.some(user =>
+                user.username === username &&
+                user.password === password
+                                                  );
+            if (isValid) {
+
                 // SUCCESS
                 showLoading(false);
                 showSuccess('Login Successful! Redirecting to Dashboard...');
@@ -412,3 +419,4 @@
 </body>
 
 </html>
+
